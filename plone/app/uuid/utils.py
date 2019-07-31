@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
+import uuid as _uuid
 from Products.CMFCore.utils import getToolByName
 from zope.component.hooks import getSite
+
+def force_hex_uuid(uuid):
+    """Return the UUID as a 32-character hexadecimal string."""
+    try:
+        return uuid.hex
+    except AttributeError:
+        return _uuid.UUID(uuid).hex
+
 
 
 def uuidToPhysicalPath(uuid):
@@ -8,6 +17,7 @@ def uuidToPhysicalPath(uuid):
     object. Will return None if the UUID can't be found.
     """
 
+    uuid = force_hex_uuid(uuid)
     brain = uuidToCatalogBrain(uuid)
     if brain is None:
         return None
@@ -20,6 +30,7 @@ def uuidToURL(uuid):
     object. Will return None if the UUID can't be found.
     """
 
+    uuid = force_hex_uuid(uuid)
     brain = uuidToCatalogBrain(uuid)
     if brain is None:
         return None
@@ -32,6 +43,7 @@ def uuidToObject(uuid):
     None if the UUID can't be found.
     """
 
+    uuid = force_hex_uuid(uuid)
     brain = uuidToCatalogBrain(uuid)
     if brain is None:
         return None
@@ -51,6 +63,7 @@ def uuidToCatalogBrain(uuid):
     if catalog is None:
         return None
 
+    uuid = force_hex_uuid(uuid)
     result = catalog(UID=uuid)
     if len(result) != 1:
         return None

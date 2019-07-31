@@ -90,6 +90,22 @@ class IntegrationTestCase(unittest.TestCase):
 
         self.assertEqual(aq_base(d1), aq_base(uuidToObject(uuid)))
 
+    def test_uuidToObject_with_standard_form(self):
+        import uuid
+        from Acquisition import aq_base
+        from plone.uuid.interfaces import IUUID
+        from plone.app.uuid.utils import uuidToObject
+
+        portal = self.layer['portal']
+        setRoles(portal, TEST_USER_ID, ['Manager'])
+
+        portal.invokeFactory('Document', 'd1')
+
+        d1 = portal['d1']
+        _uuid = str(uuid.UUID(IUUID(d1)))
+
+        self.assertEqual(aq_base(d1), aq_base(uuidToObject(_uuid)))
+
 
 class FunctionalTestCase(unittest.TestCase):
 
@@ -171,3 +187,16 @@ class FunctionalTestCase(unittest.TestCase):
         from zExceptions import NotFound
         with self.assertRaises(NotFound):
             browser.open(url)
+
+
+class UnitTestCase(unittest.TestCase):
+    def test_force_hex_uuid(self):
+        from plone.app.uuid.utils import force_hex_uuid
+
+        self.assertEqual(len(set([
+            'a45205d98c844fec832571e7ba2afd13',
+            force_hex_uuid('a45205d9-8c84-4fec-8325-71e7ba2afd13'),
+            force_hex_uuid('a45205d98c844fec832571e7ba2afd13'),
+            force_hex_uuid(UUID('a45205d9-8c84-4fec-8325-71e7ba2afd13'))
+        ]), 1)
+
